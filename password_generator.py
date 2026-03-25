@@ -1,34 +1,39 @@
-
-import string 
+import re
 import secrets
-def generate_strong_password(length=12):
-    """
-    Generates a strong, random password of a specified length.
+import string
 
-    Args:
-        length (int): The desired length of the password.
 
-    Returns:
-        str: A randomly generated password.
-    """
+def generate_password(length=16, nums=1, special_chars=1, uppercase=1, lowercase=1):
+
+    # Define the possible characters for the password
     letters = string.ascii_letters
     digits = string.digits
-    special_chars = string.punctuation
-    all_chars = letters + digits + special_chars
-    
-    password = []
-    password.append(secrets.choice(string.ascii_lowercase))
-    password.append(secrets.choice(string.ascii_uppercase))
-    password.append(secrets.choice(string.digits))
-    password.append(secrets.choice(string.punctuation))
-    
-    for i in range(length - 4):
-        password.append(secrets.choice(all_chars))
-    
-    secrets.SystemRandom().shuffle(password)
-    return "".join(password)
+    symbols = string.punctuation
 
-password_length = 16 
-new_password = generate_strong_password(password_length)
+    # Combine all characters
+    all_characters = letters + digits + symbols
 
-print(f"Generated Password: {new_password}")
+    while True:
+        password = ''
+        # Generate password
+        for _ in range(length):
+            password += secrets.choice(all_characters)
+        
+        constraints = [
+            (nums, r'\d'),
+            (special_chars, fr'[{symbols}]'),
+            (uppercase, r'[A-Z]'),
+            (lowercase, r'[a-z]')
+        ]
+
+        # Check constraints        
+        if all(
+            constraint <= len(re.findall(pattern, password))
+            for constraint, pattern in constraints
+        ):
+            break
+    
+    return password
+    
+new_password = generate_password()
+print('Generated password:', new_password)
